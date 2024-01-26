@@ -62,14 +62,17 @@ const addUser = (user) => {
 
 app.get("/users", (req, res) => {
     const name = req.query.name;
-    if (name != undefined) {
-        let result = findUserByName(name);
-        result = { users_list: result };
-        res.send(result);
-    } else {
-        res.send(users);
+    const job = req.query.job;
+    let result = users["users_list"];
+    if (name) {
+        result = result.filter(user => user.name === name);
     }
+    if (job) {
+        result = result.filter(user => user.job === job);
+    }
+    res.send({ users_list: result });
 });
+
 
 app.get("/users/:id", (req, res) => {
     const id = req.params["id"]; //or req.params.id
@@ -81,9 +84,19 @@ app.get("/users/:id", (req, res) => {
     }
 });
 
-
 app.post("/users", (req, res) => {
     const userToAdd = req.body;
     addUser(userToAdd);
     res.send();
+});
+
+app.delete("/users/:id", (req, res) => {
+    const id = req.params.id;
+    const index = users["users_list"].findIndex(user => user.id === id);
+    if (index !== -1) {
+        users["users_list"].splice(index, 1);
+        res.status(200).send();
+    } else {
+        res.status(404).send("User not found");
+    }
 });
