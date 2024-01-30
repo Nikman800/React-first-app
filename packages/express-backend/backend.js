@@ -91,12 +91,6 @@ app.get("/users/:id", (req, res) => {
     }
 });
 
-// app.post("/users", (req, res) => {
-//     const userToAdd = req.body;
-//     const createdUser = addUser(userToAdd);
-//     res.status(201).json(createdUser); // Return the created user with its ID
-// });
-
 // Backend
 app.post('/users', (req, res) => {
     const newUser = { id: generateId(), ...req.body };
