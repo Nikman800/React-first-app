@@ -8,6 +8,10 @@ const port = 8000;
 app.use(cors());
 app.use(express.json());
 
+function generateId() {
+    return Math.floor(Math.random() * 1000000);
+}
+
 app.get("/", (req, res) => {
     res.send("Hello World!");
 });
@@ -58,6 +62,7 @@ const findUserById = (id) =>
     users["users_list"].find((user) => user["id"] === id);
 
 const addUser = (user) => {
+    user.id = generateId(); // Assign a unique ID to the user
     users["users_list"].push(user);
     return user;
 };
@@ -86,19 +91,26 @@ app.get("/users/:id", (req, res) => {
     }
 });
 
-app.post("/users", (req, res) => {
-    const userToAdd = req.body;
-    addUser(userToAdd);
-    res.send();
-});
+// app.post("/users", (req, res) => {
+//     const userToAdd = req.body;
+//     const createdUser = addUser(userToAdd);
+//     res.status(201).json(createdUser); // Return the created user with its ID
+// });
+
+// Backend
+app.post('/users', (req, res) => {
+    const newUser = { id: generateId(), ...req.body };
+    users.users_list.push(newUser);
+    res.status(201).json(newUser); // Return the newly created user object with its new ID
+  });
 
 app.delete("/users/:id", (req, res) => {
     const id = req.params.id;
-    const index = users["users_list"].findIndex(user => user.id === id);
+    const index = findUserById(id);
     if (index !== -1) {
-        users["users_list"].splice(index, 1);
-        res.status(200).send();
+        users.users_list.splice(index, 1);
+        res.status(204).send();
     } else {
-        res.status(404).send("User not found");
+        res.status(404).send('User not found');
     }
 });

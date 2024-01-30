@@ -9,18 +9,27 @@ function MyApp() {
   const [characters, setCharacters] = useState([]);
 
   function removeOneCharacter(index) {
-    const updated = characters.filter((character, i) => {
-      return i !== index;
-    });
-    setCharacters(updated);
+    const characterToRemove = characters[index];
+    fetch(`http://localhost:8000/users/${characterToRemove.id}`, {
+      method: 'DELETE',
+    })
+      .then(response => {
+        if (response.status === 204) {
+          const updated = characters.filter((character, i) => i !== index);
+          setCharacters(updated);
+        } else if (response.status === 404) {
+          throw new Error('User not found');
+        } else {
+          throw new Error('Failed to delete user');
+        }
+      })
+      .catch(error => console.log(error));
   }
 
   function updateList(person) {
     postUser(person)
-      .then(() => setCharacters([...characters, person]))
-      .catch((error) => {
-        console.log(error);
-      })
+      .then(createdUser => setCharacters([...characters, createdUser]))
+      .catch(error => console.log(error));
   }
 
   function fetchUsers() {
@@ -29,15 +38,26 @@ function MyApp() {
   }
 
   function postUser(person) {
-    const promise = fetch("Http://localhost:8000/users", {
+    return fetch("http://localhost:8000/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(person),
-    });
-
-    return promise;
+    })
+      .then((response) => {
+        if (response.status === 201) {
+          return response.json();
+        } else {
+          throw new Error('Failed to create user');
+        }
+      })
+      .then((createdUser) => {
+        setCharacters([...characters, createdUser]);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   useEffect(() => {
