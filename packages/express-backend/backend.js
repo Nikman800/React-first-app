@@ -8,8 +8,12 @@ const port = 8000;
 app.use(cors());
 app.use(express.json());
 
+// function generateId() {
+//     return Math.floor(Math.random() * 1000000);
+// }
+
 function generateId() {
-    return Math.floor(Math.random() * 1000000);
+    return Math.floor(Math.random() * 1000000).toString();
 }
 
 app.get("/", (req, res) => {
