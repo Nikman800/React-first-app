@@ -2,8 +2,7 @@
 
 import Table from "./Table";
 import Form from "./Form";
-import React, { useState, useEffect } from 'react';
-
+import React, { useState, useEffect } from "react";
 
 function MyApp() {
   const [characters, setCharacters] = useState([]);
@@ -26,27 +25,31 @@ function MyApp() {
   //     .catch(error => console.log(error));
   // }
 
-  function removeOneCharacter(id) {
-    fetch(`http://localhost:8000/users/${id}`, {
-      method: 'DELETE',
+  function removeOneCharacter(_id) {
+    fetch(`http://localhost:8000/users/${_id}`, {
+      method: "DELETE",
     })
-      .then(response => {
+      .then((response) => {
         if (response.status === 204) {
-          const updated = characters.filter((character) => character.id !== id);
+          const updated = characters.filter(
+            (character) => character._id !== _id,
+          );
           setCharacters(updated);
         } else if (response.status === 404) {
-          throw new Error('User not found');
+          throw new Error("User not found");
         } else {
-          throw new Error('Failed to delete user');
+          throw new Error("Failed to delete user");
         }
       })
-      .catch(error => console.log(error));
+      .catch((error) => console.log(error));
   }
 
   function updateList(person) {
     postUser(person)
-      .then(createdUser => setCharacters(prevCharacters => [...prevCharacters, createdUser]))
-      .catch(error => console.log(error));
+      .then((createdUser) =>
+        setCharacters((prevCharacters) => [...prevCharacters, createdUser]),
+      )
+      .catch((error) => console.log(error));
   }
 
   function fetchUsers() {
@@ -81,30 +84,27 @@ function MyApp() {
     return fetch("http://localhost:8000/users", {
       method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(person),
-    })
-    .then(response => response.json());
+    }).then((response) => response.json());
   }
 
   useEffect(() => {
     fetchUsers()
       .then((res) => res.json())
-      .then((json) => setCharacters(json["users_list"]))
-      .catch((error) => { console.log(error); });
+      .then((json) => setCharacters(json))
+      .catch((error) => {
+        console.log(error);
+      });
   }, []);
 
   return (
     <div className="container">
-      <Table
-        characterData={characters}
-        removeCharacter={removeOneCharacter}
-      />
+      <Table characterData={characters} removeCharacter={removeOneCharacter} />
       <Form handleSubmit={updateList} />
     </div>
   );
 }
-
 
 export default MyApp;
